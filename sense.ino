@@ -148,7 +148,6 @@ void touchSense() {
 
 //Function to feel light intensity through haptic feedback
 void lightSense() {
-  connectionFlash(255, 255, 0);
   float lightIntensity = (CircuitPlayground.lightSensor())/1023.;
   Serial.println(lightIntensity);
 

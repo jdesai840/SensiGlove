@@ -33,21 +33,15 @@ void connectionFlash(int red, int green, int blue) {
   for (int i = 0; i < 9; i++) {
     CircuitPlayground.setPixelColor(i, red, green, blue);
   }
-
   delay(200);
-
   for (int i = 0; i < 9; i++) {
     CircuitPlayground.setPixelColor(i, 0, 0, 0);
   }
-
   delay(100);
-
   for (int i = 0; i < 9; i++) {
     CircuitPlayground.setPixelColor(i, red, green, blue);
   }
-
   delay(200);
-
   for (int i = 0; i < 9; i++) {
     CircuitPlayground.setPixelColor(i, 0, 0, 0);
   }

@@ -95,6 +95,7 @@ void mapTemperature() {
 }
 
 
+//Haptic feedback mechanism based on capactive touch
 void touchSense() {
   if (touchTrigger(index_middle)) {
     NeoBluefruit.vibrateMotor(3, 1);
@@ -142,6 +143,7 @@ void touchSense() {
   }
 }
 
+
 //Initialization of microcontroller and Neosensory Buzz BLE
 void setup() {
   Serial.begin(9600);
@@ -157,7 +159,7 @@ void setup() {
 }
 
 
-//Haptic feedback mechanism based on capactive touch
+
 void loop() {
   if (NeoBluefruit.isConnected() && NeoBluefruit.isAuthorized()) {
     

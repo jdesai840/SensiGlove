@@ -12,44 +12,141 @@ int palm = 2;
 
 // Threshold for determining capacitive touch readings corresponding to human skin (from trial and error data collection)
 int touchThreshold = 1000;
+float bodyTemp = 33.0;
+float tempScale;
+int tempWheel;
 
 
 // Function to detect whether a certain finger is currently touch a human
 boolean touchTrigger(uint8_t touchPin) {
-    if (CircuitPlayground.readCap(touchPin) > touchThreshold) {
-        return true;
-    }
-    else {
-        return false;
-    }
+  if (CircuitPlayground.readCap(touchPin) > touchThreshold) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 
 // Function to indicate Bluetooth connectivity
 void connectionFlash(int red, int green, int blue) {
-     for(int i = 0; i < 9; i++) {
-         CircuitPlayground.setPixelColor(i, red, green, blue);
-     }
+  for (int i = 0; i < 9; i++) {
+    CircuitPlayground.setPixelColor(i, red, green, blue);
+  }
 
-     delay(200);
+  delay(200);
 
-     for(int i = 0; i < 9; i++) {
-         CircuitPlayground.setPixelColor(i, 0, 0, 0);
-     }
+  for (int i = 0; i < 9; i++) {
+    CircuitPlayground.setPixelColor(i, 0, 0, 0);
+  }
 
-     delay(100);
+  delay(100);
 
-     for(int i = 0; i < 9; i++) {
-         CircuitPlayground.setPixelColor(i, red, green, blue);
-     }
+  for (int i = 0; i < 9; i++) {
+    CircuitPlayground.setPixelColor(i, red, green, blue);
+  }
 
-     delay(200);
+  delay(200);
 
-     for(int i = 0; i < 9; i++) {
-         CircuitPlayground.setPixelColor(i, 0, 0, 0);
-     }
+  for (int i = 0; i < 9; i++) {
+    CircuitPlayground.setPixelColor(i, 0, 0, 0);
+  }
 }
 
+
+void mapTemperature() {
+  float senseTemp = CircuitPlayground.temperature();
+  float diffTemp = senseTemp - bodyTemp;
+
+  if (diffTemp >= 0) {
+    tempScale = map(diffTemp, 0, 20, 0, 1000);
+    tempWheel = map(diffTemp, 0, 15, 0, 9);
+
+    for (int i = 0; i < tempWheel; i++) {
+      CircuitPlayground.setPixelColor(i, 255, 0, 0);
+    }
+
+    delay(200);
+
+    for (int i = 0; i < tempWheel; i++) {
+      CircuitPlayground.setPixelColor(i, 0, 0, 0);
+    }
+
+    delay(10);
+  }
+
+  else if (diffTemp < 0) {
+    tempScale = map(diffTemp, 0, -20, 0, 1000);
+    tempWheel = map(diffTemp, 0, -15, 0, 9);
+
+    for (int i = 0; i < tempWheel; i++) {
+      CircuitPlayground.setPixelColor(i, 0, 0, 255);
+    }
+
+    delay(200);
+
+    for (int i = 0; i < tempWheel; i++) {
+      CircuitPlayground.setPixelColor(i, 0, 0, 0);
+    }
+
+    delay(20);
+  }
+
+  float tempIntensity = (tempScale / 1000) / 2;
+
+
+  Serial.println(tempWheel);
+  float vibrationIntensities[] = {tempIntensity, tempIntensity, tempIntensity, tempIntensity};
+  NeoBluefruit.vibrateMotors(vibrationIntensities);
+}
+
+
+void touchSense() {
+  if (touchTrigger(index_middle)) {
+    NeoBluefruit.vibrateMotor(3, 1);
+    CircuitPlayground.setPixelColor(5, 255, 0, 0);
+    CircuitPlayground.setPixelColor(6, 255, 0, 0);
+  }
+  else {
+    NeoBluefruit.vibrateMotor(3, 0);
+    CircuitPlayground.setPixelColor(5, 0, 0, 0);
+    CircuitPlayground.setPixelColor(6, 0, 0, 0);
+  }
+  if (touchTrigger(ring_pinky)) {
+    NeoBluefruit.vibrateMotor(2, 1);
+    CircuitPlayground.setPixelColor(3, 0, 255, 0);
+    CircuitPlayground.setPixelColor(4, 0, 255, 0);
+  }
+  else {
+    NeoBluefruit.vibrateMotor(2, 0);
+    CircuitPlayground.setPixelColor(3, 0, 0, 0);
+    CircuitPlayground.setPixelColor(4, 0, 0, 0);
+  }
+  if (touchTrigger(thumb)) {
+    NeoBluefruit.vibrateMotor(1, 1);
+    CircuitPlayground.setPixelColor(7, 125, 125, 125);
+    CircuitPlayground.setPixelColor(8, 125, 125, 125);
+  }
+  else {
+    NeoBluefruit.vibrateMotor(1, 0);
+    CircuitPlayground.setPixelColor(7, 0, 0, 0);
+    CircuitPlayground.setPixelColor(8, 0, 0, 0);
+  }
+  if (touchTrigger(palm)) {
+    NeoBluefruit.vibrateMotor(0, 1);
+    CircuitPlayground.setPixelColor(0, 0, 0, 255);
+    CircuitPlayground.setPixelColor(1, 0, 0, 255);
+    CircuitPlayground.setPixelColor(2, 0, 0, 255);
+    CircuitPlayground.setPixelColor(9, 0, 0, 255);
+  }
+  else {
+    NeoBluefruit.vibrateMotor(0, 0);
+    CircuitPlayground.setPixelColor(0, 0, 0, 0);
+    CircuitPlayground.setPixelColor(1, 0, 0, 0);
+    CircuitPlayground.setPixelColor(2, 0, 0, 0);
+    CircuitPlayground.setPixelColor(9, 0, 0, 0);
+  }
+}
 
 //Initialization of microcontroller and Neosensory Buzz BLE
 void setup() {
@@ -69,50 +166,14 @@ void setup() {
 //Haptic feedback mechanism based on capactive touch
 void loop() {
   if (NeoBluefruit.isConnected() && NeoBluefruit.isAuthorized()) {
-      if (touchTrigger(index_middle)) {
-          NeoBluefruit.vibrateMotor(3, 1);
-          CircuitPlayground.setPixelColor(5, 255, 0, 0);
-          CircuitPlayground.setPixelColor(6, 255, 0, 0);
-      }
-      else {
-          NeoBluefruit.vibrateMotor(3, 0);
-          CircuitPlayground.setPixelColor(5, 0, 0, 0);
-          CircuitPlayground.setPixelColor(6, 0, 0, 0);
-      }
-      if (touchTrigger(ring_pinky)) {
-          NeoBluefruit.vibrateMotor(2, 1);
-          CircuitPlayground.setPixelColor(3, 0, 255, 0);
-          CircuitPlayground.setPixelColor(4, 0, 255, 0);
-      }
-      else {
-          NeoBluefruit.vibrateMotor(2, 0);
-          CircuitPlayground.setPixelColor(3, 0, 0, 0);
-          CircuitPlayground.setPixelColor(4, 0, 0, 0);
-      }
-      if (touchTrigger(thumb)) {
-          NeoBluefruit.vibrateMotor(1, 1);
-          CircuitPlayground.setPixelColor(7, 125, 125, 125);
-          CircuitPlayground.setPixelColor(8, 125, 125, 125);
-      }
-      else {
-          NeoBluefruit.vibrateMotor(1, 0);
-          CircuitPlayground.setPixelColor(7, 0, 0, 0);
-          CircuitPlayground.setPixelColor(8, 0, 0, 0);
-      }
-      if (touchTrigger(palm)) {
-          NeoBluefruit.vibrateMotor(0, 1);
-          CircuitPlayground.setPixelColor(0, 0, 0, 255);
-          CircuitPlayground.setPixelColor(1, 0, 0, 255);
-          CircuitPlayground.setPixelColor(2, 0, 0, 255);
-          CircuitPlayground.setPixelColor(9, 0, 0, 255);
-      }
-      else {
-          NeoBluefruit.vibrateMotor(0, 0);
-          CircuitPlayground.setPixelColor(0, 0, 0, 0);
-          CircuitPlayground.setPixelColor(1, 0, 0, 0);
-          CircuitPlayground.setPixelColor(2, 0, 0, 0);
-          CircuitPlayground.setPixelColor(9, 0, 0, 0);
-      }
+    
+    //Slide switch use to switch between touch and temperature modes
+    if (CircuitPlayground.slideSwitch()) {
+      touchSense();
+    }
+    else {
+    mapTemperature();
+    }
   }
 }
 

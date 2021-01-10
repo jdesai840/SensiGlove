@@ -5,10 +5,12 @@
 NeosensoryBluefruit NeoBluefruit;
 
 // Defining which capactive touch pin corresponds to which finger
-int index_middle = 6;
-int ring_pinky = 0;
+int indexf = 10;
+int middle = 6;
+int ring = 0;
+int pinky = 2;
 int thumb = 9;
-int palm = 2;
+int palm = 3;
 
 // Threshold for determining capacitive touch readings corresponding to human skin (from trial and error data collection)
 int touchThreshold = 1000;
@@ -97,17 +99,17 @@ void tempSense() {
 
 //Haptic feedback mechanism based on capactive touch
 void touchSense() {
-  if (touchTrigger(index_middle)) {
-    NeoBluefruit.vibrateMotor(3, 1);
+  if (touchTrigger(indexf) || touchTrigger(middle)) {
+    NeoBluefruit.vibrateMotor(1, 1);
     CircuitPlayground.setPixelColor(5, 255, 0, 0);
     CircuitPlayground.setPixelColor(6, 255, 0, 0);
   }
   else {
-    NeoBluefruit.vibrateMotor(3, 0);
+    NeoBluefruit.vibrateMotor(1, 0);
     CircuitPlayground.setPixelColor(5, 0, 0, 0);
     CircuitPlayground.setPixelColor(6, 0, 0, 0);
   }
-  if (touchTrigger(ring_pinky)) {
+  if (touchTrigger(ring) || touchTrigger(pinky)) {
     NeoBluefruit.vibrateMotor(2, 1);
     CircuitPlayground.setPixelColor(3, 0, 255, 0);
     CircuitPlayground.setPixelColor(4, 0, 255, 0);
@@ -118,24 +120,24 @@ void touchSense() {
     CircuitPlayground.setPixelColor(4, 0, 0, 0);
   }
   if (touchTrigger(thumb)) {
-    NeoBluefruit.vibrateMotor(1, 1);
+    NeoBluefruit.vibrateMotor(0, 1);
     CircuitPlayground.setPixelColor(7, 125, 125, 125);
     CircuitPlayground.setPixelColor(8, 125, 125, 125);
   }
   else {
-    NeoBluefruit.vibrateMotor(1, 0);
+    NeoBluefruit.vibrateMotor(0, 0);
     CircuitPlayground.setPixelColor(7, 0, 0, 0);
     CircuitPlayground.setPixelColor(8, 0, 0, 0);
   }
   if (touchTrigger(palm)) {
-    NeoBluefruit.vibrateMotor(0, 1);
+    NeoBluefruit.vibrateMotor(3, 1);
     CircuitPlayground.setPixelColor(0, 0, 0, 255);
     CircuitPlayground.setPixelColor(1, 0, 0, 255);
     CircuitPlayground.setPixelColor(2, 0, 0, 255);
     CircuitPlayground.setPixelColor(9, 0, 0, 255);
   }
   else {
-    NeoBluefruit.vibrateMotor(0, 0);
+    NeoBluefruit.vibrateMotor(3, 0);
     CircuitPlayground.setPixelColor(0, 0, 0, 0);
     CircuitPlayground.setPixelColor(1, 0, 0, 0);
     CircuitPlayground.setPixelColor(2, 0, 0, 0);

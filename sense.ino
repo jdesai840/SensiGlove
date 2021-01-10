@@ -48,7 +48,7 @@ void connectionFlash(int red, int green, int blue) {
 }
 
 
-void mapTemperature() {
+void tempSense() {
   float senseTemp = CircuitPlayground.temperature();
   float diffTemp = senseTemp - bodyTemp;
 
@@ -144,10 +144,22 @@ void touchSense() {
 }
 
 
+//Function to feel light intensity through haptic feedback
+void lightSense() {
+  connectionFlash(255, 255, 0);
+  float lightIntensity = (CircuitPlayground.lightSensor())/1023.;
+  Serial.println(lightIntensity);
+
+  float lightVibrate[] = {lightIntensity, lightIntensity, lightIntensity, lightIntensity};
+  NeoBluefruit.vibrateMotors(lightVibrate);
+}
+
+
 //Initialization of microcontroller and Neosensory Buzz BLE
 void setup() {
   Serial.begin(9600);
   CircuitPlayground.begin();
+  CircuitPlayground.setBrightness(20);
   NeoBluefruit.begin();
   NeoBluefruit.setConnectedCallback(onConnected);
   NeoBluefruit.setDisconnectedCallback(onDisconnected);
@@ -159,7 +171,6 @@ void setup() {
 }
 
 
-
 void loop() {
   if (NeoBluefruit.isConnected() && NeoBluefruit.isAuthorized()) {
     
@@ -168,7 +179,7 @@ void loop() {
       touchSense();
     }
     else {
-    mapTemperature();
+      tempSense();
     }
   }
 }

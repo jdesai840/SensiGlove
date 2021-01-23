@@ -50,6 +50,7 @@ void connectionFlash(int red, int green, int blue) {
 }
 
 
+//Temperature sensation toggling (experimental and optional)
 void tempSense() {
   float senseTemp = CircuitPlayground.temperature();
   float diffTemp = senseTemp - bodyTemp;
@@ -146,7 +147,7 @@ void touchSense() {
 }
 
 
-//Function to feel light intensity through haptic feedback
+//Function to feel light intensity through haptic feedback (experimental and optional)
 void lightSense() {
   float lightIntensity = (CircuitPlayground.lightSensor())/1023.;
   Serial.println(lightIntensity);

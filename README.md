@@ -5,5 +5,4 @@ The Edge Impulse model can be found in the associated ZIP file. The code for the
 
 ![Quick Overview](https://cdn.discordapp.com/attachments/795811395002171392/797800958620073984/ezgif.com-gif-maker_1.gif)
 
-For more details, please go to:
-https://devpost.com/software/sensiglove
+Dependent on the Neosensory SDK for Arduino

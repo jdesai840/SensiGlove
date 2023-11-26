@@ -1,7 +1,12 @@
 # SensiGlove
 
 **1st Place Winner of the 2021 Neosensory Developer Contest!**
+
+
+Full Project Write-up:
 https://www.hackster.io/hjones6315/sensiglove-adding-sensory-perception-to-any-prosthetic-arm-56f47f
+
+Video Overview of Project:
 https://youtu.be/H9P8Iio1RB4
 
 

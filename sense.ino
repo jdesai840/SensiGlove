@@ -1,6 +1,7 @@
 #include <Base64.h>
 #include <neosensory_bluefruit.h>
 #include <Adafruit_CircuitPlayground.h>
+#include <sensiglove_inference.h>
 
 NeosensoryBluefruit NeoBluefruit;
 

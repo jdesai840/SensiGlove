@@ -5,6 +5,22 @@
 
 NeosensoryBluefruit NeoBluefruit;
 
+// Function to get raw feature data
+int raw_feature_get_data(size_t offset, size_t length, float *out_ptr) {
+    memcpy(out_ptr, features + offset, length * sizeof(float));
+    return 0;
+}
+
+// Printf function for debug output
+void ei_printf(const char *format, ...) {
+    static char print_buf[1024] = { 0 };
+    va_list args;
+    va_start(args, format);
+    vsnprintf(print_buf, sizeof(print_buf), format, args);
+    va_end(args);
+    Serial.write(print_buf);
+}
+
 // Defining which capactive touch pin corresponds to which finger
 int indexf = 10;
 int middle = 6;
@@ -19,16 +35,22 @@ float bodyTemp = 33.0;
 float tempScale;
 int tempWheel;
 
+// Raw features array for SensiGlove Inference
+static const float features[] = {
+    // Copy raw features here
+};
 
-// Function to detect whether a certain finger is currently touch a human
-boolean touchTrigger(uint8_t touchPin) {
-  if (CircuitPlayground.readCap(touchPin) > touchThreshold) {
-    return true;
-  }
-  else {
-    return false;
-  }
-}
+// Function prototypes
+boolean touchTrigger(uint8_t touchPin);
+void connectionFlash(int red, int green, int blue);
+void tempSense();
+void touchSense();
+void lightSense();
+void onConnected(bool success);
+void onDisconnected(uint16_t conn_handle, uint8_t reason);
+void onReadNotify(BLEClientCharacteristic* chr, uint8_t* data, uint16_t len);
+int raw_feature_get_data(size_t offset, size_t length, float *out_ptr);
+void ei_printf(const char *format, ...);
 
 
 // Function to indicate Bluetooth connectivity
@@ -157,37 +179,6 @@ void lightSense() {
   NeoBluefruit.vibrateMotors(lightVibrate);
 }
 
-
-//Initialization of microcontroller and Neosensory Buzz BLE
-void setup() {
-  Serial.begin(9600);
-  CircuitPlayground.begin();
-  CircuitPlayground.setBrightness(20);
-  NeoBluefruit.begin();
-  NeoBluefruit.setConnectedCallback(onConnected);
-  NeoBluefruit.setDisconnectedCallback(onDisconnected);
-  NeoBluefruit.setReadNotifyCallback(onReadNotify);
-  NeoBluefruit.startScan();
-  while (!NeoBluefruit.isConnected() || !NeoBluefruit.isAuthorized()) {}
-  NeoBluefruit.deviceInfo();
-  NeoBluefruit.deviceBattery();
-}
-
-
-void loop() {
-  if (NeoBluefruit.isConnected() && NeoBluefruit.isAuthorized()) {
-    
-    //Slide switch use to switch between touch and temperature modes
-    if (CircuitPlayground.slideSwitch()) {
-      touchSense();
-    }
-    else {
-      tempSense();
-    }
-  }
-}
-
-
 //Bluetooth connectivity callback for connection
 void onConnected(bool success) {
   if (!success) {
@@ -218,3 +209,40 @@ void onReadNotify(BLEClientCharacteristic* chr, uint8_t* data, uint16_t len) {
     Serial.write(data[i]);
   }
 }
+
+//Initialization of microcontroller and Neosensory Buzz BLE
+void setup() {
+    Serial.begin(115200);
+    CircuitPlayground.begin();
+    CircuitPlayground.setBrightness(20);
+    NeoBluefruit.begin();
+    NeoBluefruit.setConnectedCallback(onConnected);
+    NeoBluefruit.setDisconnectedCallback(onDisconnected);
+    NeoBluefruit.setReadNotifyCallback(onReadNotify);
+    NeoBluefruit.startScan();
+    while (!NeoBluefruit.isConnected() || !NeoBluefruit.isAuthorized()) {}
+    NeoBluefruit.deviceInfo();
+    NeoBluefruit.deviceBattery();
+}
+
+
+void loop() {
+    if (NeoBluefruit.isConnected() && NeoBluefruit.isAuthorized()) {
+        if (CircuitPlayground.slideSwitch()) {
+            touchSense();
+        } else {
+            tempSense();
+        }
+        lightSense(); // Optional, remove if not needed
+
+        ei_impulse_result_t result = { 0 };
+        signal_t features_signal;
+        features_signal.total_length = sizeof(features) / sizeof(features[0]);
+        features_signal.get_data = &raw_feature_get_data;
+        EI_IMPULSE_ERROR res = run_classifier(&features_signal, &result, false);
+        // Handle classification results
+    }
+    delay(1000);
+}
+
+

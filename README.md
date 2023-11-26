@@ -1,6 +1,9 @@
 # SensiGlove
 
 **1st Place Winner of the 2021 Neosensory Developer Contest!**
+https://www.hackster.io/hjones6315/sensiglove-adding-sensory-perception-to-any-prosthetic-arm-56f47f
+https://youtu.be/H9P8Iio1RB4
+
 
 SensiGlove is a low-cost prosthetic arm sensory feedback system. It uses haptic feedback to allow people with prosthetic arms to have a simulated sense of touch by using haptic feedback.
 
